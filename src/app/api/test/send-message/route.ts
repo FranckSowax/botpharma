@@ -11,13 +11,13 @@ export async function POST(request: Request) {
       )
     }
 
-    // Vérifier la configuration Whapi
-    const WHAPI_TOKEN = process.env.WHAPI_TOKEN
-    const WHAPI_API_URL = process.env.WHAPI_API_URL || 'https://gate.whapi.cloud'
+    // Vérifier la configuration Whapi (support both WHAPI_TOKEN and WHAPI_API_KEY)
+    const WHAPI_TOKEN = process.env.WHAPI_TOKEN || process.env.WHAPI_API_KEY
+    const WHAPI_API_URL = process.env.WHAPI_API_URL || process.env.WHAPI_BASE_URL || 'https://gate.whapi.cloud'
 
     if (!WHAPI_TOKEN) {
       return NextResponse.json(
-        { error: 'WHAPI_TOKEN non configuré' },
+        { error: 'WHAPI_TOKEN ou WHAPI_API_KEY non configuré' },
         { status: 500 }
       )
     }

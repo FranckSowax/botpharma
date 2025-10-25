@@ -3,8 +3,9 @@
  * Documentation: https://whapi.cloud/
  */
 
-const WHAPI_API_URL = process.env.WHAPI_API_URL || 'https://gate.whapi.cloud'
-const WHAPI_TOKEN = process.env.WHAPI_TOKEN
+const WHAPI_API_URL = process.env.WHAPI_API_URL || process.env.WHAPI_BASE_URL || 'https://gate.whapi.cloud'
+// Support both WHAPI_TOKEN and WHAPI_API_KEY for backward compatibility
+const WHAPI_TOKEN = process.env.WHAPI_TOKEN || process.env.WHAPI_API_KEY
 
 export interface WhapiMessage {
   from: string // Numéro du client

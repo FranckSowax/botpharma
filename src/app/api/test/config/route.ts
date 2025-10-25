@@ -17,10 +17,11 @@ export async function GET() {
           process.env.OPENAI_API_KEY.substring(0, 20) + '...' : 'Non configuré',
       },
       whapi: {
-        token: !!process.env.WHAPI_TOKEN,
-        apiUrl: process.env.WHAPI_API_URL || 'https://gate.whapi.cloud',
-        tokenPreview: process.env.WHAPI_TOKEN ? 
-          process.env.WHAPI_TOKEN.substring(0, 10) + '...' : 'Non configuré',
+        token: !!(process.env.WHAPI_TOKEN || process.env.WHAPI_API_KEY),
+        apiUrl: process.env.WHAPI_API_URL || process.env.WHAPI_BASE_URL || 'https://gate.whapi.cloud',
+        tokenPreview: (process.env.WHAPI_TOKEN || process.env.WHAPI_API_KEY) ? 
+          (process.env.WHAPI_TOKEN || process.env.WHAPI_API_KEY)!.substring(0, 10) + '...' : 'Non configuré',
+        usingVariable: process.env.WHAPI_TOKEN ? 'WHAPI_TOKEN' : process.env.WHAPI_API_KEY ? 'WHAPI_API_KEY' : 'none',
       },
       environment: process.env.NODE_ENV || 'development',
     }
