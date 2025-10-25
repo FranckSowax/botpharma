@@ -3,7 +3,7 @@
 import { useState } from 'react'
 
 export default function TestWhatsAppPage() {
-  const [phoneNumber, setPhoneNumber] = useState('+241')
+  const [phoneNumber, setPhoneNumber] = useState('241')
   const [message, setMessage] = useState('Bonjour, je teste le bot!')
   const [response, setResponse] = useState<any>(null)
   const [loading, setLoading] = useState(false)
@@ -139,11 +139,14 @@ export default function TestWhatsAppPage() {
                   type="text"
                   value={phoneNumber}
                   onChange={(e) => setPhoneNumber(e.target.value)}
-                  placeholder="+241XXXXXXXXX"
+                  placeholder="24177123456"
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
                 />
                 <p className="text-xs text-gray-500 mt-1">
-                  Format: +241 suivi du numéro (ex: +24177123456)
+                  Format: 241 suivi du numéro (ex: 24177123456) - Sans le +
+                </p>
+                <p className="text-xs text-orange-600 mt-1">
+                  ⚠️ Important: Le numéro doit être enregistré dans ton compte Whapi
                 </p>
               </div>
 
@@ -209,8 +212,9 @@ export default function TestWhatsAppPage() {
               <li>• <strong>Étape 1:</strong> Teste d&apos;abord le webhook pour vérifier qu&apos;il est actif</li>
               <li>• <strong>Étape 2:</strong> Vérifie que toutes les variables d&apos;environnement sont configurées</li>
               <li>• <strong>Étape 3:</strong> Envoie un message de test à un numéro WhatsApp</li>
-              <li>• <strong>Format du numéro:</strong> +241 suivi du numéro sans espaces (ex: +24177123456)</li>
-              <li>• <strong>Note:</strong> Le numéro doit être enregistré dans Whapi</li>
+              <li>• <strong>Format du numéro:</strong> Code pays + numéro sans le + (ex: 24177123456)</li>
+              <li>• <strong>Note:</strong> Le numéro doit être enregistré dans ton compte Whapi</li>
+              <li>• <strong>Exemple Gabon:</strong> 24177123456 ou 24166123456</li>
             </ul>
           </div>
         </div>

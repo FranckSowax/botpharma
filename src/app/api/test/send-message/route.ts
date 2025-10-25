@@ -22,11 +22,16 @@ export async function POST(request: Request) {
       )
     }
 
-    // Formater le numéro (enlever les espaces et caractères spéciaux sauf +)
-    const formattedPhone = phoneNumber.replace(/[^\d+]/g, '')
+    // Formater le numéro (enlever les espaces et caractères spéciaux)
+    let formattedPhone = phoneNumber.replace(/[^\d+]/g, '')
+    
+    // Enlever le + si présent
+    if (formattedPhone.startsWith('+')) {
+      formattedPhone = formattedPhone.substring(1)
+    }
     
     // Construire l'ID WhatsApp (format: numéro@s.whatsapp.net)
-    const chatId = formattedPhone.replace('+', '') + '@s.whatsapp.net'
+    const chatId = formattedPhone + '@s.whatsapp.net'
 
     // Envoyer le message via Whapi
     const response = await fetch(`${WHAPI_API_URL}/messages/text`, {
