@@ -4,9 +4,12 @@
 
 import OpenAI from 'openai'
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-})
+// Initialize OpenAI client only if API key is available
+const apiKey = process.env.OPENAI_API_KEY || ''
+
+const openai = apiKey
+  ? new OpenAI({ apiKey })
+  : null
 
 export interface Message {
   role: 'system' | 'user' | 'assistant'
@@ -75,6 +78,14 @@ export async function generateAIResponse(
   context: ConversationContext
 ): Promise<{ success: boolean; response?: string; error?: any }> {
   try {
+    // Check if OpenAI client is available
+    if (!openai) {
+      return {
+        success: false,
+        error: 'OpenAI client not initialized. Please set OPENAI_API_KEY.',
+      }
+    }
+
     // Construire l'historique des messages
     const messages: Message[] = [
       { role: 'system', content: SYSTEM_PROMPT },
@@ -134,6 +145,13 @@ export async function generateProductRecommendation(
   availableProducts: any[]
 ): Promise<{ success: boolean; recommendation?: string; products?: any[]; error?: any }> {
   try {
+    if (!openai) {
+      return {
+        success: false,
+        error: 'OpenAI client not initialized. Please set OPENAI_API_KEY.',
+      }
+    }
+
     const productsText = availableProducts
       .map(p => `- ${p.name} (${p.price_cfa} FCFA) - ${p.description || ''}`)
       .join('\n')
@@ -187,6 +205,13 @@ export async function analyzeIntent(
   error?: any
 }> {
   try {
+    if (!openai) {
+      return {
+        success: false,
+        error: 'OpenAI client not initialized. Please set OPENAI_API_KEY.',
+      }
+    }
+
     const prompt = `Analyse l'intention de ce message client:
 "${message}"
 
