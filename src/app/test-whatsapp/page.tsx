@@ -8,6 +8,8 @@ export default function TestWhatsAppPage() {
   const [response, setResponse] = useState<any>(null)
   const [loading, setLoading] = useState(false)
   const [webhookStatus, setWebhookStatus] = useState<any>(null)
+  const [messageId, setMessageId] = useState('')
+  const [messageStatus, setMessageStatus] = useState<any>(null)
 
   // Test d'envoi de message
   const handleSendMessage = async () => {
@@ -23,6 +25,11 @@ export default function TestWhatsAppPage() {
       
       const data = await res.json()
       setResponse(data)
+      
+      // Si le message est envoyé avec succès, sauvegarder l'ID
+      if (data.success && data.data?.message?.id) {
+        setMessageId(data.data.message.id)
+      }
     } catch (error) {
       setResponse({ error: 'Erreur lors de l\'envoi', details: error })
     } finally {
@@ -63,6 +70,32 @@ export default function TestWhatsAppPage() {
       setResponse(data)
     } catch (error) {
       setResponse({ error: 'Erreur config', details: error })
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // Vérifier le statut d'un message
+  const handleCheckMessageStatus = async () => {
+    if (!messageId) {
+      setMessageStatus({ error: 'Aucun message ID disponible' })
+      return
+    }
+
+    setLoading(true)
+    setMessageStatus(null)
+    
+    try {
+      const res = await fetch('/api/test/message-status', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messageId }),
+      })
+      
+      const data = await res.json()
+      setMessageStatus(data)
+    } catch (error) {
+      setMessageStatus({ error: 'Erreur statut', details: error })
     } finally {
       setLoading(false)
     }
@@ -172,6 +205,61 @@ export default function TestWhatsAppPage() {
               </button>
             </div>
           </div>
+
+          {/* Section 4: Vérifier le Statut d'un Message */}
+          {messageId && (
+            <div className="mb-8 p-6 bg-orange-50 rounded-xl">
+              <h2 className="text-xl font-semibold text-gray-800 mb-4">
+                4️⃣ Vérifier le Statut du Message
+              </h2>
+              <p className="text-sm text-gray-600 mb-4">
+                Message ID: <code className="bg-white px-2 py-1 rounded">{messageId}</code>
+              </p>
+              <button
+                onClick={handleCheckMessageStatus}
+                disabled={loading}
+                className="px-6 py-3 bg-orange-600 text-white rounded-lg hover:bg-orange-700 disabled:bg-gray-400 transition-colors"
+              >
+                {loading ? 'Vérification...' : '🔍 Vérifier le Statut'}
+              </button>
+              
+              {messageStatus && (
+                <div className="mt-4 p-4 bg-white rounded-lg">
+                  <pre className="text-sm overflow-auto">
+                    {JSON.stringify(messageStatus, null, 2)}
+                  </pre>
+                  
+                  {messageStatus.data?.status && (
+                    <div className="mt-4 p-3 bg-blue-100 border border-blue-400 rounded-lg">
+                      <p className="text-blue-800 font-medium">
+                        📊 Statut: <strong>{messageStatus.data.status}</strong>
+                      </p>
+                      {messageStatus.data.status === 'pending' && (
+                        <p className="text-sm text-blue-700 mt-1">
+                          ⏳ Le message est en attente de livraison
+                        </p>
+                      )}
+                      {messageStatus.data.status === 'sent' && (
+                        <p className="text-sm text-blue-700 mt-1">
+                          ✅ Le message a été envoyé au serveur WhatsApp
+                        </p>
+                      )}
+                      {messageStatus.data.status === 'delivered' && (
+                        <p className="text-sm text-green-700 mt-1">
+                          ✅ Le message a été livré au destinataire
+                        </p>
+                      )}
+                      {messageStatus.data.status === 'read' && (
+                        <p className="text-sm text-green-700 mt-1">
+                          ✅ Le message a été lu par le destinataire
+                        </p>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Résultat */}
           {response && (
