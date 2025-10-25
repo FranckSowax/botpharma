@@ -1,0 +1,348 @@
+[
+  {
+    "id": 1,
+    "title": "Backend Infrastructure and Database Setup",
+    "status": "pending",
+    "details": "Initialize Supabase project with PostgreSQL database. Create tables: products (id, name, description, price, image_url, availability, category, brand, bio, vegan, fragrance_free), customers (id, phone, profile_data, consent_timestamp, satisfaction_scores, purchase_history), conversations (id, customer_id, messages, status, created_at), consent_logs (id, customer_id, consent_given, timestamp), and deletion_logs (id, customer_id, deleted_at). Set up Row Level Security (RLS) policies for data protection. Configure Supabase Auth for dashboard users with role-based access (Admin, Product Editor, Support). Implement database functions for RGPD compliance including automated data deletion cascades.",
+    "priority": "high",
+    "subtasks": [
+      {
+        "id": 1,
+        "title": "Initialize Supabase Project and Basic Configuration",
+        "status": "pending",
+        "details": "Create Supabase account and new project. Configure database URL, anon key, and service role key in environment variables. Set up initial project structure with proper connection configuration. Install Supabase CLI and initialize local development environment.",
+        "description": "Create a new Supabase project, configure the PostgreSQL database connection, and set up the basic project structure with environment variables and connection settings.",
+        "dependencies": [],
+        "testStrategy": "Test database connectivity and verify environment configuration with connection tests"
+      },
+      {
+        "id": 2,
+        "title": "Create Core Database Schema and Tables",
+        "status": "pending",
+        "details": "Create products table with fields: id (UUID primary key), name (text), description (text), price (decimal), image_url (text), availability (boolean), category (text), brand (text), bio (boolean), vegan (boolean), fragrance_free (boolean). Create customers table with id (UUID), phone (text unique), profile_data (jsonb), consent_timestamp (timestamp), satisfaction_scores (jsonb), purchase_history (jsonb). Create conversations table with id (UUID), customer_id (foreign key), messages (jsonb array), status (enum), created_at (timestamp). Create consent_logs and deletion_logs tables with appropriate audit fields.",
+        "description": "Design and implement the complete database schema including products, customers, conversations, consent_logs, and deletion_logs tables with proper data types, constraints, and relationships.",
+        "dependencies": [
+          1
+        ],
+        "testStrategy": "Schema validation tests, foreign key constraint tests, and data type validation tests"
+      },
+      {
+        "id": 3,
+        "title": "Implement Row Level Security (RLS) Policies",
+        "status": "pending",
+        "details": "Enable RLS on all tables. Create policies for products table allowing public read access and authenticated write access for product editors. Implement customer data policies ensuring customers can only access their own data. Set up conversation policies linking to customer ownership. Create admin-level policies for consent_logs and deletion_logs with full access for compliance officers. Implement helper functions for role checking and data ownership validation.",
+        "description": "Configure comprehensive Row Level Security policies for all tables to ensure data protection and proper access control based on user roles and data ownership.",
+        "dependencies": [
+          2
+        ],
+        "testStrategy": "RLS policy enforcement tests with different user roles, unauthorized access prevention tests, and data isolation verification"
+      },
+      {
+        "id": 4,
+        "title": "Configure Supabase Authentication and Role-Based Access",
+        "status": "pending",
+        "details": "Configure Supabase Auth providers and settings. Create custom user metadata schema for roles. Implement role assignment functions and triggers. Set up Admin role with full system access, Product Editor role with product management permissions, and Support role with customer service access. Create authentication middleware for role verification. Implement user invitation system for dashboard access.",
+        "description": "Set up Supabase Auth system with custom user roles (Admin, Product Editor, Support) and implement role-based access control for dashboard users.",
+        "dependencies": [
+          3
+        ],
+        "testStrategy": "Authentication flow tests, role assignment verification, and access control tests for each user role"
+      },
+      {
+        "id": 5,
+        "title": "Implement RGPD Compliance Functions and Data Management",
+        "status": "pending",
+        "details": "Implement automated data deletion functions with cascading deletes across related tables. Create consent management functions for tracking and updating customer consent. Set up audit triggers for logging all data access and modifications. Implement data export functions for customer data portability requests. Create scheduled functions for automated data retention policy enforcement. Set up notification system for consent expiration and data deletion events.",
+        "description": "Create database functions and triggers for RGPD compliance including automated data deletion cascades, consent management, and audit logging for data operations.",
+        "dependencies": [
+          4
+        ],
+        "testStrategy": "RGPD compliance tests including data deletion verification, consent tracking accuracy, audit log completeness, and data export functionality"
+      }
+    ],
+    "description": "Set up Supabase backend with database schema, authentication, and core data models for products, customers, conversations, and RGPD compliance",
+    "dependencies": [],
+    "testStrategy": "Unit tests for database schema validation, RLS policy enforcement, and CRUD operations. Integration tests for Supabase Auth flows and role-based access control."
+  },
+  {
+    "id": 2,
+    "title": "WhatsApp Integration and Core Conversational Flow",
+    "status": "pending",
+    "details": "Set up Whapi API integration for sending/receiving WhatsApp messages. Implement webhook endpoints to handle incoming messages. Create conversational flow engine with state management for: automated greeting with brand messaging, RGPD consent capture with timestamp logging, quick-reply menu system (product search, health advice, promotions), targeted Q&A flow with 2-3 follow-up questions, and conversation state persistence in Supabase. Implement message queuing system with retry logic to handle API rate limits (1000 messages/min). Add keyword detection for human escalation triggers and 'SUPPRIMER' for RGPD deletion requests.",
+    "priority": "high",
+    "subtasks": [
+      {
+        "id": 1,
+        "title": "Set up Whapi API integration and webhook endpoints",
+        "status": "pending",
+        "details": "Configure Whapi API credentials and base client setup. Create webhook endpoint at /api/whatsapp/webhook to receive incoming messages. Implement webhook signature verification for security. Set up message parsing to extract sender, message content, and metadata. Create outbound message sending functionality with error handling and response validation.",
+        "description": "Establish connection to Whapi API for WhatsApp Business messaging and create webhook endpoints to handle incoming messages with proper authentication and validation",
+        "dependencies": [],
+        "testStrategy": "Mock Whapi API responses for unit testing webhook processing and message sending functionality"
+      },
+      {
+        "id": 2,
+        "title": "Implement message queuing system with rate limiting",
+        "status": "pending",
+        "details": "Implement Redis-based message queue for outbound messages. Create queue processor with rate limiting (max 16 messages per second to stay under 1000/min limit). Add exponential backoff retry logic for failed messages. Implement dead letter queue for permanently failed messages. Add monitoring and logging for queue health and message processing status.",
+        "description": "Create a robust message queuing system to handle Whapi API rate limits of 1000 messages per minute with retry logic and failure handling",
+        "dependencies": [
+          1
+        ],
+        "testStrategy": "Load testing with high message volumes to verify rate limiting works correctly and retry logic handles failures"
+      },
+      {
+        "id": 3,
+        "title": "Build conversational flow engine with state management",
+        "status": "pending",
+        "details": "Design conversation state schema with states like 'greeting', 'consent', 'menu', 'product_search', 'health_advice', 'qa_flow'. Implement state machine logic to transition between states based on user input. Create conversation context storage in Supabase with user_id, current_state, conversation_data, and timestamps. Add state persistence and retrieval functions. Implement timeout handling for inactive conversations.",
+        "description": "Create a state machine-based conversational flow engine that manages user conversation states and handles different conversation paths",
+        "dependencies": [
+          1
+        ],
+        "testStrategy": "Unit tests for state transitions and integration tests for state persistence in Supabase"
+      },
+      {
+        "id": 4,
+        "title": "Implement automated greeting and RGPD consent capture",
+        "status": "pending",
+        "details": "Design welcome message template with brand messaging. Implement RGPD consent request with clear explanation of data usage. Create consent capture logic that logs user response with timestamp in Supabase. Add 'SUPPRIMER' keyword detection for RGPD deletion requests with automated data removal. Implement consent validation before proceeding to main menu. Store consent status and timestamp for compliance tracking.",
+        "description": "Create the initial conversation flow with automated brand greeting and RGPD consent capture with proper logging and compliance features",
+        "dependencies": [
+          2,
+          3
+        ],
+        "testStrategy": "End-to-end testing of greeting flow and RGPD consent scenarios including deletion requests"
+      },
+      {
+        "id": 5,
+        "title": "Build quick-reply menu system and Q&A flow",
+        "status": "pending",
+        "details": "Create quick-reply menu with options for product search, health advice, and promotions. Implement menu option handlers that transition to appropriate conversation states. Build Q&A flow engine with 2-3 follow-up questions based on user selection. Add keyword detection for human escalation triggers (e.g., 'agent', 'help', 'problem'). Implement conversation routing to human agents when escalation keywords are detected. Add conversation logging for analytics and improvement.",
+        "description": "Implement interactive menu system with quick-reply buttons for product search, health advice, and promotions, plus targeted Q&A flow with follow-up questions",
+        "dependencies": [
+          3,
+          4
+        ],
+        "testStrategy": "Comprehensive conversation flow testing with various user scenarios including menu navigation and escalation triggers"
+      }
+    ],
+    "description": "Implement WhatsApp Business integration using Whapi API with automated greeting, RGPD consent capture, and basic conversational flow management",
+    "dependencies": [
+      1
+    ],
+    "testStrategy": "Mock Whapi API responses for unit testing. Integration tests with Whapi sandbox environment. End-to-end conversation flow testing with various user scenarios."
+  },
+  {
+    "id": 3,
+    "title": "AI-Powered Product Recommendation System",
+    "status": "pending",
+    "details": "Integrate OpenAI GPT-4o API for analyzing customer responses and generating product recommendations. Build recommendation engine that considers customer profile, previous purchases, and current needs. Implement product matching algorithm based on categories, brands, bio/vegan preferences, and fragrance-free options. Create product card generation system with images, prices, availability status, and personalized cart links. Add customer profile enrichment using AI analysis of conversation history. Implement caching layer for frequent product queries to optimize performance. Set up fallback mechanisms when GPT-4o API is unavailable.",
+    "priority": "medium",
+    "subtasks": [
+      {
+        "id": 1,
+        "title": "Integrate OpenAI GPT-4o API for Natural Language Understanding",
+        "status": "pending",
+        "details": "Create API client wrapper for OpenAI GPT-4o with proper authentication, error handling, and rate limiting. Implement prompt engineering for extracting structured data from customer conversations including product categories, brand preferences, bio/vegan requirements, and fragrance-free needs. Add retry logic and timeout handling for API calls. Create data models for parsed customer intent and preferences.",
+        "description": "Set up OpenAI GPT-4o API integration to analyze customer responses and extract intent, preferences, and product requirements from natural language conversations",
+        "dependencies": [],
+        "testStrategy": "Mock GPT-4o API responses for consistent testing. Unit tests for API client functionality and error handling scenarios."
+      },
+      {
+        "id": 2,
+        "title": "Build Core Recommendation Engine with Customer Profiling",
+        "status": "pending",
+        "details": "Implement recommendation scoring algorithm that weighs customer profile data, previous purchases, and AI-extracted preferences. Create customer profile enrichment system using conversation history analysis. Build product matching logic for categories, brands, bio/vegan preferences, and fragrance-free options. Implement collaborative filtering and content-based filtering approaches. Add recommendation ranking and filtering mechanisms.",
+        "description": "Develop the recommendation algorithm that processes customer profiles, purchase history, and current needs to generate personalized product suggestions",
+        "dependencies": [
+          1
+        ],
+        "testStrategy": "Unit tests for recommendation algorithm accuracy with various customer profiles. A/B testing framework for recommendation relevance measurement."
+      },
+      {
+        "id": 3,
+        "title": "Implement Product Matching and Filtering System",
+        "status": "pending",
+        "details": "Build product database query system with advanced filtering for categories, brands, bio/vegan status, and fragrance-free options. Implement product compatibility checking and cross-selling logic. Create inventory availability checking integration. Add product scoring system based on customer preference matching. Implement product exclusion rules for allergies or incompatible ingredients.",
+        "description": "Create sophisticated product matching algorithms that filter and rank products based on customer preferences, availability, and compatibility requirements",
+        "dependencies": [
+          2
+        ],
+        "testStrategy": "Unit tests for filtering accuracy and edge cases. Performance testing for complex query execution times."
+      },
+      {
+        "id": 4,
+        "title": "Develop Product Card Generation and Cart Integration",
+        "status": "pending",
+        "details": "Create product card template system with dynamic content generation. Implement image optimization and CDN integration for product photos. Build pricing calculation with discounts and promotions. Add real-time availability status checking. Create personalized cart link generation with product variants and quantities. Implement product card caching for frequently accessed items.",
+        "description": "Build system to generate rich product cards with images, pricing, availability status, and personalized cart links for recommended products",
+        "dependencies": [
+          3
+        ],
+        "testStrategy": "Visual regression testing for product card layouts. Integration tests for cart link functionality and pricing accuracy."
+      },
+      {
+        "id": 5,
+        "title": "Implement Caching Layer and Fallback Mechanisms",
+        "status": "pending",
+        "details": "Implement Redis-based caching for frequent product queries and recommendation results. Create cache invalidation strategies for product updates and inventory changes. Build fallback recommendation system using rule-based logic when GPT-4o API is unavailable. Add circuit breaker pattern for external API calls. Implement graceful degradation with cached recommendations and basic product matching when AI services are down.",
+        "description": "Add performance optimization through intelligent caching and robust fallback systems for when external APIs are unavailable",
+        "dependencies": [
+          1,
+          2,
+          3,
+          4
+        ],
+        "testStrategy": "Performance testing for response times under 500ms with caching enabled. Chaos engineering tests for API failure scenarios and fallback behavior."
+      }
+    ],
+    "description": "Integrate GPT-4o for natural language understanding and implement intelligent product recommendation engine with personalized suggestions",
+    "dependencies": [
+      1,
+      2
+    ],
+    "testStrategy": "Unit tests for recommendation algorithm accuracy. A/B testing for recommendation relevance. Performance testing for response times under 500ms. Mock GPT-4o responses for consistent testing."
+  },
+  {
+    "id": 4,
+    "title": "Web Dashboard Development",
+    "status": "pending",
+    "details": "Develop Next.js 14 application with App Router, TypeScript, Tailwind CSS, and shadcn UI components. Implement authentication integration with Supabase Auth and role-based access control (Admin, Product Editor, Support). Create product management interface with CRUD operations, CSV import/export functionality with schema validation, and bulk operations. Build conversation monitoring dashboard with real-time message display, customer profiles, and escalation alerts. Develop KPI reporting module showing conversations count, conversion rates, sales metrics, and satisfaction scores with charts and filters. Implement RGPD compliance module with consent logs viewer, data deletion interface, and audit trails. Add email notification system using SendGrid for human escalation alerts. Ensure mobile-first responsive design with page load times ≤ 1.5s.",
+    "priority": "medium",
+    "subtasks": [
+      {
+        "id": 1,
+        "title": "Setup Next.js 14 Foundation with Authentication",
+        "status": "pending",
+        "details": "Create new Next.js 14 project with App Router configuration. Install and configure TypeScript, Tailwind CSS, and shadcn UI components. Set up Supabase client and authentication providers. Create middleware for route protection and role-based access control. Implement login/logout functionality with role assignment. Create protected route wrappers and role-based component rendering logic.",
+        "description": "Initialize Next.js 14 project with App Router, TypeScript, Tailwind CSS, and shadcn UI components. Integrate Supabase Auth for authentication and implement role-based access control system with Admin, Product Editor, and Support roles.",
+        "dependencies": [],
+        "testStrategy": "Unit tests for authentication utilities, middleware testing for route protection, integration tests for Supabase Auth flow"
+      },
+      {
+        "id": 2,
+        "title": "Product Management Interface Development",
+        "status": "pending",
+        "details": "Create product data models and TypeScript interfaces. Build product listing page with search, filtering, and pagination. Implement create/edit product forms with validation using react-hook-form and zod. Develop CSV import functionality with schema validation and error handling. Create CSV export feature with customizable fields. Implement bulk operations (delete, update, status changes) with confirmation dialogs. Add product image upload and management.",
+        "description": "Build comprehensive product management interface with CRUD operations, CSV import/export functionality with schema validation, and bulk operations for product data management.",
+        "dependencies": [
+          1
+        ],
+        "testStrategy": "Component tests for forms and validation, integration tests for CSV import/export, E2E tests for CRUD workflows"
+      },
+      {
+        "id": 3,
+        "title": "Conversation Monitoring Dashboard",
+        "status": "pending",
+        "details": "Create conversation data models and real-time subscription setup with Supabase. Build conversation list view with filtering by status, agent, and date range. Implement real-time message display with WebSocket connections. Create customer profile sidebar with conversation history and contact details. Develop escalation alert system with visual indicators and notifications. Add conversation assignment and status management for support agents. Implement message search and export functionality.",
+        "description": "Develop real-time conversation monitoring dashboard with message display, customer profiles, escalation alerts, and support agent interface for managing customer interactions.",
+        "dependencies": [
+          1
+        ],
+        "testStrategy": "Real-time functionality testing with WebSocket mocks, component tests for conversation UI, E2E tests for escalation workflows"
+      },
+      {
+        "id": 4,
+        "title": "KPI Reporting and Analytics Module",
+        "status": "pending",
+        "details": "Integrate charting library (Chart.js or Recharts) for data visualization. Create KPI calculation utilities for conversations, conversions, and sales metrics. Build dashboard widgets for key metrics with real-time updates. Implement date range filters and comparison tools. Create detailed reports with drill-down capabilities. Add export functionality for reports (PDF/CSV). Develop satisfaction score tracking and visualization. Implement caching strategy for performance optimization.",
+        "description": "Build comprehensive KPI reporting module displaying conversation counts, conversion rates, sales metrics, and satisfaction scores with interactive charts, filters, and export capabilities.",
+        "dependencies": [
+          1,
+          3
+        ],
+        "testStrategy": "Unit tests for KPI calculations, visual regression tests for charts, performance tests for large datasets"
+      },
+      {
+        "id": 5,
+        "title": "RGPD Compliance and Email Notification System",
+        "status": "pending",
+        "details": "Create RGPD compliance data models for consent tracking and audit logs. Build consent management interface with user consent history and status tracking. Implement data deletion functionality with confirmation workflows and audit trail logging. Create audit trail viewer with filtering and export capabilities. Integrate SendGrid API for email notifications. Develop escalation alert email templates and trigger logic. Implement email notification preferences and unsubscribe functionality. Add RGPD-compliant data export feature for user data requests.",
+        "description": "Implement RGPD compliance module with consent logs viewer, data deletion interface, audit trails, and integrate SendGrid email notification system for human escalation alerts.",
+        "dependencies": [
+          1,
+          3
+        ],
+        "testStrategy": "Integration tests for SendGrid email delivery, compliance workflow testing, audit trail verification tests"
+      }
+    ],
+    "description": "Build comprehensive web dashboard using Next.js 14 with role-based access control, product management, conversation monitoring, and RGPD compliance features",
+    "dependencies": [
+      1
+    ],
+    "testStrategy": "Component testing with Jest and React Testing Library. E2E testing with Playwright for critical user flows. Performance testing for page load times. Security testing for role-based access controls."
+  },
+  {
+    "id": 5,
+    "title": "Post-Purchase Automation and Loyalty System",
+    "status": "pending",
+    "details": "Build automated post-purchase workflow triggered by order confirmation from external e-commerce platform. Implement satisfaction survey system sent 2 days after delivery with rating collection and feedback analysis. Create usage tips delivery system based on purchased products. Develop loyalty campaign engine with AI-powered customer scoring, personalized coupon generation, and scheduled reactivation messages. Set up order tracking integration and confirmation message system. Implement customer lifecycle management with automated touchpoints based on purchase history and engagement patterns. Add campaign performance tracking and optimization features.",
+    "priority": "low",
+    "subtasks": [
+      {
+        "id": 1,
+        "title": "E-commerce Platform Integration and Order Tracking",
+        "status": "pending",
+        "details": "Create webhook endpoints to receive order data from e-commerce platforms (Shopify, WooCommerce, etc.). Implement order data parsing and validation. Set up database schema for order tracking with status updates. Build confirmation message system with email/SMS templates. Add retry mechanisms for failed webhook deliveries and implement secure webhook validation with signatures.",
+        "description": "Implement webhook integration with external e-commerce platform to capture order confirmations and delivery status updates. Set up order tracking system and automated confirmation message delivery.",
+        "dependencies": [],
+        "testStrategy": "Integration tests with mock e-commerce webhooks. Test webhook security validation. Verify order data parsing accuracy and confirmation message delivery timing."
+      },
+      {
+        "id": 2,
+        "title": "Automated Satisfaction Survey System",
+        "status": "pending",
+        "details": "Create survey template engine with customizable questions and rating scales. Implement scheduled job system to trigger surveys based on delivery dates. Build survey response collection API with rating storage and text feedback processing. Add sentiment analysis for feedback text using NLP libraries. Create survey analytics dashboard for response tracking and satisfaction metrics.",
+        "description": "Build automated survey delivery system that sends satisfaction surveys 2 days after delivery confirmation, with rating collection and feedback analysis capabilities.",
+        "dependencies": [
+          1
+        ],
+        "testStrategy": "Automated tests for survey scheduling accuracy. Mock delivery date scenarios to verify 2-day delay. Test survey response collection and sentiment analysis accuracy."
+      },
+      {
+        "id": 3,
+        "title": "Product-Based Usage Tips Delivery System",
+        "status": "pending",
+        "details": "Create product catalog mapping system linking products to relevant usage tips and guides. Build tip recommendation engine using product categories and customer purchase history. Implement content management system for tip creation and scheduling. Add personalization logic based on customer segments and previous engagement. Create multi-channel delivery system (email, in-app notifications, SMS) with optimal timing algorithms.",
+        "description": "Develop intelligent usage tips delivery system that sends personalized product guidance and tips based on purchased items and customer behavior patterns.",
+        "dependencies": [
+          1
+        ],
+        "testStrategy": "Test tip recommendation accuracy for different product categories. Verify personalization logic with various customer profiles. A/B test delivery timing optimization."
+      },
+      {
+        "id": 4,
+        "title": "AI-Powered Loyalty Campaign Engine",
+        "status": "pending",
+        "details": "Implement machine learning model for customer lifetime value scoring using purchase history, engagement metrics, and survey responses. Create dynamic coupon generation system with personalized discount rules and expiration management. Build campaign automation engine with trigger-based workflows for different customer segments. Add reactivation campaign logic for dormant customers with escalating incentive strategies. Implement A/B testing framework for campaign optimization.",
+        "description": "Build comprehensive loyalty system with AI-driven customer scoring, personalized coupon generation, and automated reactivation campaigns based on customer lifecycle stages.",
+        "dependencies": [
+          1,
+          2
+        ],
+        "testStrategy": "Test AI scoring model accuracy with historical customer data. A/B test different coupon strategies and reactivation campaign effectiveness. Monitor campaign performance metrics and conversion rates."
+      },
+      {
+        "id": 5,
+        "title": "Customer Lifecycle Management and Analytics Dashboard",
+        "status": "pending",
+        "details": "Create customer journey mapping system tracking all touchpoints from purchase to loyalty engagement. Build automated lifecycle stage detection with appropriate messaging triggers. Implement comprehensive analytics dashboard showing campaign performance, customer engagement metrics, and ROI calculations. Add predictive analytics for churn prevention and upselling opportunities. Create reporting system with scheduled insights delivery to stakeholders and campaign optimization recommendations.",
+        "description": "Implement comprehensive customer lifecycle management system with automated touchpoints and performance tracking dashboard for campaign optimization and ROI analysis.",
+        "dependencies": [
+          2,
+          3,
+          4
+        ],
+        "testStrategy": "Test lifecycle stage detection accuracy. Verify analytics dashboard data accuracy against source systems. Performance testing for real-time analytics processing and dashboard responsiveness."
+      }
+    ],
+    "description": "Implement automated post-purchase follow-up system with satisfaction surveys, usage tips, and personalized loyalty campaigns",
+    "dependencies": [
+      1,
+      2,
+      3
+    ],
+    "testStrategy": "Integration tests with e-commerce platform webhooks. Automated testing of survey delivery timing. A/B testing for loyalty campaign effectiveness. Performance monitoring for scheduled message delivery."
+  }
+]
