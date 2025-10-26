@@ -3,7 +3,7 @@
  * Orchestre Whapi + OpenAI + Supabase
  */
 
-import { createClient } from '@/lib/supabase/client'
+import { createServerClient } from '@/lib/supabase/server-client'
 import { sendTypingMessage } from './whapi-client'
 import { generateAIResponse, analyzeIntent } from '@/lib/ai/openai-client'
 
@@ -18,7 +18,7 @@ export interface IncomingMessage {
  * Traiter un message entrant
  */
 export async function handleIncomingMessage(message: IncomingMessage) {
-  const supabase = createClient()
+  const supabase = createServerClient()
 
   try {
     console.log('📨 Message reçu de:', message.from, '-', message.body)
@@ -102,7 +102,7 @@ export async function handleIncomingMessage(message: IncomingMessage) {
  * Obtenir ou créer un utilisateur
  */
 async function getOrCreateUser(phoneNumber: string, name?: string) {
-  const supabase = createClient()
+  const supabase = createServerClient()
 
   // Chercher l'utilisateur existant
   const { data: existingUser } = await supabase
@@ -137,7 +137,13 @@ async function getOrCreateUser(phoneNumber: string, name?: string) {
     .single()
 
   if (error) {
-    console.error('Erreur création utilisateur:', error)
+    console.error('❌ Erreur création utilisateur:', error)
+    console.error('Details:', {
+      code: error.code,
+      message: error.message,
+      details: error.details,
+      hint: error.hint,
+    })
     return null
   }
 
@@ -149,7 +155,7 @@ async function getOrCreateUser(phoneNumber: string, name?: string) {
  * Obtenir ou créer une conversation
  */
 async function getOrCreateConversation(userId: string) {
-  const supabase = createClient()
+  const supabase = createServerClient()
 
   // Chercher une conversation ouverte
   const { data: openConversation } = await supabase
@@ -194,7 +200,7 @@ async function saveMessage(
   sender: 'user' | 'assistant' | 'human',
   content: string
 ) {
-  const supabase = createClient()
+  const supabase = createServerClient()
 
   const { error } = await supabase.from('messages').insert({
     conversation_id: conversationId,
@@ -212,7 +218,7 @@ async function saveMessage(
  * Récupérer l'historique de conversation
  */
 async function getConversationHistory(conversationId: string) {
-  const supabase = createClient()
+  const supabase = createServerClient()
 
   const { data: messages } = await supabase
     .from('messages')
@@ -256,7 +262,7 @@ async function escalateToHuman(
   userId: string,
   reason: string
 ) {
-  const supabase = createClient()
+  const supabase = createServerClient()
 
   // Mettre à jour le statut de la conversation
   await supabase
@@ -305,7 +311,7 @@ async function sendFallbackResponse(phoneNumber: string) {
  * Mettre à jour l'état de la conversation
  */
 async function updateConversationState(conversationId: string, intent: string) {
-  const supabase = createClient()
+  const supabase = createServerClient()
 
   const stateMap: Record<string, string> = {
     greeting: 'greeting',
