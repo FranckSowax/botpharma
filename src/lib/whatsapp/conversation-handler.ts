@@ -76,11 +76,13 @@ export async function handleIncomingMessage(message: IncomingMessage) {
     await saveMessage(conversation.id, 'assistant', aiResponse.response)
 
     // 9. Envoyer la réponse via WhatsApp
-    const sendResult = await sendTypingMessage(message.from, aiResponse.response)
+    // Extraire le numéro (enlever @s.whatsapp.net si présent)
+    const phoneNumber = message.from.replace('@s.whatsapp.net', '')
+    const sendResult = await sendTypingMessage(phoneNumber, aiResponse.response)
 
     if (!sendResult.success) {
-      console.error('Erreur envoi message WhatsApp')
-      return { success: false, error: 'WhatsApp send failed' }
+      console.error('❌ Erreur envoi message WhatsApp:', sendResult.error)
+      return { success: false, error: 'WhatsApp send failed', details: sendResult.error }
     }
 
     // 10. Mettre à jour l'état de la conversation

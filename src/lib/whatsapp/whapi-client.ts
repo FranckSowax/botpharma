@@ -26,11 +26,18 @@ export interface WhapiSendMessageParams {
  */
 export async function sendWhatsAppMessage(params: WhapiSendMessageParams) {
   if (!WHAPI_TOKEN) {
-    console.error('WHAPI_TOKEN non configuré')
+    console.error('❌ WHAPI_TOKEN non configuré')
     return { success: false, error: 'WHAPI_TOKEN not configured' }
   }
 
   try {
+    console.log('📤 Envoi message Whapi:', {
+      to: params.to,
+      bodyLength: params.body.length,
+      url: `${WHAPI_API_URL}/messages/text`,
+      hasToken: !!WHAPI_TOKEN,
+    })
+
     const response = await fetch(`${WHAPI_API_URL}/messages/text`, {
       method: 'POST',
       headers: {
@@ -47,14 +54,18 @@ export async function sendWhatsAppMessage(params: WhapiSendMessageParams) {
     const data = await response.json()
 
     if (!response.ok) {
-      console.error('Erreur Whapi:', data)
+      console.error('❌ Erreur Whapi:', {
+        status: response.status,
+        statusText: response.statusText,
+        data: data,
+      })
       return { success: false, error: data }
     }
 
     console.log('✅ Message envoyé via Whapi:', params.to)
     return { success: true, data }
   } catch (error) {
-    console.error('Erreur envoi Whapi:', error)
+    console.error('❌ Exception envoi Whapi:', error)
     return { success: false, error }
   }
 }
