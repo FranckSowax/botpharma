@@ -26,7 +26,8 @@ export async function POST(request: Request) {
     }
 
     // Traiter les messages entrants
-    if (event === 'messages.upsert' || event === 'message') {
+    // Accepter: event explicite OU présence d'un tableau messages OU objet message
+    if (event === 'messages.upsert' || event === 'message' || body.messages || body.message) {
       const message = body.messages?.[0] || body.message
 
       if (!message) {
