@@ -10,6 +10,7 @@ export default function TestWhatsAppPage() {
   const [webhookStatus, setWebhookStatus] = useState<any>(null)
   const [messageId, setMessageId] = useState('')
   const [messageStatus, setMessageStatus] = useState<any>(null)
+  const [whapiStatus, setWhapiStatus] = useState<any>(null)
 
   // Test d'envoi de message
   const handleSendMessage = async () => {
@@ -70,6 +71,25 @@ export default function TestWhatsAppPage() {
       setResponse(data)
     } catch (error) {
       setResponse({ error: 'Erreur config', details: error })
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // Test du statut Whapi
+  const handleTestWhapiStatus = async () => {
+    setLoading(true)
+    setWhapiStatus(null)
+    
+    try {
+      const res = await fetch('/api/test/whapi-status', {
+        method: 'GET',
+      })
+      
+      const data = await res.json()
+      setWhapiStatus(data)
+    } catch (error) {
+      setWhapiStatus({ error: 'Erreur Whapi status', details: error })
     } finally {
       setLoading(false)
     }
@@ -145,13 +165,50 @@ export default function TestWhatsAppPage() {
             <p className="text-sm text-gray-600 mb-4">
               Vérifie que toutes les variables d&apos;environnement sont configurées
             </p>
-            <button
-              onClick={handleTestConfig}
-              disabled={loading}
-              className="px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:bg-gray-400 transition-colors"
-            >
-              {loading ? 'Vérification...' : 'Vérifier la Config'}
-            </button>
+            <div className="flex gap-3">
+              <button
+                onClick={handleTestConfig}
+                disabled={loading}
+                className="px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:bg-gray-400 transition-colors"
+              >
+                {loading ? 'Vérification...' : 'Vérifier la Config'}
+              </button>
+              <button
+                onClick={handleTestWhapiStatus}
+                disabled={loading}
+                className="px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:bg-gray-400 transition-colors"
+              >
+                {loading ? 'Test...' : '🔌 Tester Whapi'}
+              </button>
+            </div>
+            
+            {whapiStatus && (
+              <div className="mt-4 p-4 bg-white rounded-lg">
+                <pre className="text-sm overflow-auto">
+                  {JSON.stringify(whapiStatus, null, 2)}
+                </pre>
+                {whapiStatus.success && (
+                  <div className="mt-3 p-3 bg-green-100 border border-green-400 rounded-lg">
+                    <p className="text-green-800 font-medium">
+                      ✅ Connexion Whapi réussie !
+                    </p>
+                  </div>
+                )}
+                {whapiStatus.error && (
+                  <div className="mt-3 p-3 bg-red-100 border border-red-400 rounded-lg">
+                    <p className="text-red-800 font-medium">
+                      ❌ Erreur: {whapiStatus.error}
+                    </p>
+                    {whapiStatus.statusCode === 401 && (
+                      <p className="text-sm text-red-700 mt-2">
+                        💡 Le token Whapi est invalide ou le canal n&apos;est pas autorisé. 
+                        Vérifie ton token dans le Whapi Dashboard.
+                      </p>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
           </div>
 
           {/* Section 3: Envoi de Message */}
