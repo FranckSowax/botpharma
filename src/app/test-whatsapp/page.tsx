@@ -233,7 +233,10 @@ export default function TestWhatsAppPage() {
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
                 />
                 <p className="text-xs text-gray-500 mt-1">
-                  Format: 241 suivi du numéro (ex: 24177123456) - Sans le +
+                  <strong>Nouveau format:</strong> 24166871309 ou <strong>Ancien format:</strong> 24106871309
+                </p>
+                <p className="text-xs text-blue-600 mt-1">
+                  💡 Les deux formats sont acceptés - La conversion est automatique
                 </p>
                 <p className="text-xs text-orange-600 mt-1">
                   ⚠️ Important: Le numéro doit être enregistré dans ton compte Whapi
@@ -357,9 +360,9 @@ export default function TestWhatsAppPage() {
               <li>• <strong>Étape 1:</strong> Teste d&apos;abord le webhook pour vérifier qu&apos;il est actif</li>
               <li>• <strong>Étape 2:</strong> Vérifie que toutes les variables d&apos;environnement sont configurées</li>
               <li>• <strong>Étape 3:</strong> Envoie un message de test à un numéro WhatsApp</li>
-              <li>• <strong>Format du numéro:</strong> Code pays + numéro sans le + (ex: 24177123456)</li>
+              <li>• <strong>Format du numéro:</strong> Ancien (24106871309) ou Nouveau (24166871309)</li>
+              <li>• <strong>Conversion automatique:</strong> L&apos;ancien format est converti vers le nouveau</li>
               <li>• <strong>Note:</strong> Le numéro doit être enregistré dans ton compte Whapi</li>
-              <li>• <strong>Exemple Gabon:</strong> 24177123456 ou 24166123456</li>
             </ul>
           </div>
         </div>

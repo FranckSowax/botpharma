@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { normalizeGabonPhoneNumber, toWhatsAppChatId, isValidGabonPhoneNumber } from '@/lib/utils/phone-formatter'
 
 export async function POST(request: Request) {
   try {
@@ -22,16 +23,16 @@ export async function POST(request: Request) {
       )
     }
 
-    // Formater le numéro (enlever les espaces et caractères spéciaux)
-    let formattedPhone = phoneNumber.replace(/[^\d+]/g, '')
+    // Normaliser le numéro (gère l'ancien et le nouveau format gabonais)
+    const normalizedPhone = normalizeGabonPhoneNumber(phoneNumber)
     
-    // Enlever le + si présent
-    if (formattedPhone.startsWith('+')) {
-      formattedPhone = formattedPhone.substring(1)
+    // Vérifier si c'est un numéro gabonais valide
+    if (!isValidGabonPhoneNumber(phoneNumber)) {
+      console.warn(`Numéro potentiellement invalide: ${phoneNumber} → ${normalizedPhone}`)
     }
     
     // Construire l'ID WhatsApp (format: numéro@s.whatsapp.net)
-    const chatId = formattedPhone + '@s.whatsapp.net'
+    const chatId = toWhatsAppChatId(phoneNumber)
 
     // Envoyer le message via Whapi
     const response = await fetch(`${WHAPI_API_URL}/messages/text`, {
@@ -64,7 +65,8 @@ export async function POST(request: Request) {
       success: true,
       message: 'Message envoyé avec succès',
       data: data,
-      phoneNumber: formattedPhone,
+      phoneNumber: normalizedPhone,
+      originalPhoneNumber: phoneNumber,
       chatId: chatId,
     })
   } catch (error: any) {
