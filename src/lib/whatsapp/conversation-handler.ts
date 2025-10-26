@@ -58,6 +58,7 @@ export async function handleIncomingMessage(message: IncomingMessage) {
     const history = await getConversationHistory(conversation.id)
 
     // 7. Générer la réponse avec OpenAI
+    console.log('💡 Génération de réponse IA...')
     const aiResponse = await generateAIResponse(message.body, {
       customerName: user.name || undefined,
       customerPreferences: user.profile_data?.preferences,
@@ -65,11 +66,14 @@ export async function handleIncomingMessage(message: IncomingMessage) {
       previousMessages: history,
     })
 
+    console.log('🤖 Réponse IA:', { success: aiResponse.success, hasResponse: !!aiResponse.response })
+
     if (!aiResponse.success || !aiResponse.response) {
-      console.error('Erreur génération réponse IA')
+      console.error('❌ Erreur génération réponse IA:', aiResponse.error)
       // Réponse de secours
-      await sendFallbackResponse(message.from)
-      return { success: false, error: 'AI response failed' }
+      const phoneNumber = message.from.replace('@s.whatsapp.net', '')
+      await sendFallbackResponse(phoneNumber)
+      return { success: false, error: 'AI response failed', details: aiResponse.error }
     }
 
     // 8. Sauvegarder la réponse de l'assistant
