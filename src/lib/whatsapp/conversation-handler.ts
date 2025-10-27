@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * Gestionnaire de conversations WhatsApp
  * Orchestre Whapi + OpenAI + Supabase
