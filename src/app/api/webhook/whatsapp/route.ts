@@ -12,9 +12,10 @@ import { handleIncomingMessage } from '@/lib/whatsapp/conversation-handler'
 
 export async function POST(request: Request) {
   try {
+    console.log('📥 Webhook appelé')
+    
     const body = await request.json()
-
-    console.log('📥 Webhook reçu:', JSON.stringify(body, null, 2))
+    console.log('📦 Body reçu:', JSON.stringify(body, null, 2))
 
     // Vérifier le type d'événement
     const event = body.event || body.type
@@ -50,20 +51,25 @@ export async function POST(request: Request) {
       }
 
       // Traiter le message
+      console.log('🔄 Traitement du message...')
       const result = await handleIncomingMessage(incomingMessage)
+      console.log('📊 Résultat traitement:', { success: result.success, hasResponse: !!(result as any).response })
 
       if (result.success) {
         return NextResponse.json({
           success: true,
           message: 'Message processed successfully',
-          response: result.response,
-          intent: result.intent,
+          response: (result as any).response,
+          intent: (result as any).intent,
+          fallback: (result as any).fallback,
         })
       } else {
+        console.error('❌ Échec traitement:', result.error)
         return NextResponse.json(
           {
             success: false,
             error: result.error,
+            details: (result as any).details,
           },
           { status: 500 }
         )
@@ -73,12 +79,17 @@ export async function POST(request: Request) {
     // Autres types d'événements (statuts, etc.)
     console.log('ℹ️  Événement non traité:', event)
     return NextResponse.json({ success: true, message: 'Event received but not processed' })
-  } catch (error) {
-    console.error('❌ Erreur webhook:', error)
+  } catch (error: any) {
+    console.error('❌ Erreur webhook:', {
+      message: error.message,
+      stack: error.stack,
+      name: error.name,
+    })
     return NextResponse.json(
       {
         success: false,
-        error: String(error),
+        error: error.message || String(error),
+        type: error.name,
       },
       { status: 500 }
     )
