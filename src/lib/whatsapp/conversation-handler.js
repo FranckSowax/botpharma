@@ -7,17 +7,19 @@ import { createServerClient } from '@/lib/supabase/server-client'
 import { sendTypingMessage } from './whapi-client'
 import { generateAIResponse, analyzeIntent } from '@/lib/ai/openai-client'
 
-export interface IncomingMessage {
-  from: string // Numéro du client
-  body: string // Contenu du message
-  name?: string // Nom du contact
-  timestamp: number
-}
+// Interface IncomingMessage (JSDoc)
+/**
+ * @typedef {Object} IncomingMessage
+ * @property {string} from - Numéro du client
+ * @property {string} body - Contenu du message
+ * @property {string} [name] - Nom du contact
+ * @property {number} timestamp
+ */
 
 /**
  * Traiter un message entrant
  */
-export async function handleIncomingMessage(message: IncomingMessage) {
+export async function handleIncomingMessage(message) {
   const supabase = createServerClient()
 
   try {
@@ -136,7 +138,7 @@ export async function handleIncomingMessage(message: IncomingMessage) {
 /**
  * Obtenir ou créer un utilisateur
  */
-async function getOrCreateUser(phoneNumber: string, name?: string): Promise<any> {
+async function getOrCreateUser(phoneNumber, name) {
   const supabase = createServerClient()
 
   // Chercher l'utilisateur existant
@@ -189,7 +191,7 @@ async function getOrCreateUser(phoneNumber: string, name?: string): Promise<any>
 /**
  * Obtenir ou créer une conversation
  */
-async function getOrCreateConversation(userId: string): Promise<any> {
+async function getOrCreateConversation(userId) {
   const supabase = createServerClient()
 
   // Chercher une conversation ouverte
@@ -231,9 +233,9 @@ async function getOrCreateConversation(userId: string): Promise<any> {
  * Sauvegarder un message
  */
 async function saveMessage(
-  conversationId: string,
-  sender: 'user' | 'assistant' | 'human',
-  content: string
+  conversationId,
+  sender,
+  content
 ) {
   const supabase = createServerClient()
 
@@ -252,7 +254,7 @@ async function saveMessage(
 /**
  * Récupérer l'historique de conversation
  */
-async function getConversationHistory(conversationId: string) {
+async function getConversationHistory(conversationId) {
   const supabase = createServerClient()
 
   const { data: messages } = await supabase
@@ -267,13 +269,13 @@ async function getConversationHistory(conversationId: string) {
   return messages.map((m) => ({
     role: m.sender === 'user' ? 'user' : 'assistant',
     content: m.content,
-  })) as any
+  }))
 }
 
 /**
  * Vérifier si escalade nécessaire
  */
-function shouldEscalate(message: string, intent: string): boolean {
+function shouldEscalate(message, intent) {
   const escalationKeywords = [
     'conseiller',
     'humain',
@@ -293,9 +295,9 @@ function shouldEscalate(message: string, intent: string): boolean {
  * Escalader vers un conseiller humain
  */
 async function escalateToHuman(
-  conversationId: string,
-  userId: string,
-  reason: string
+  conversationId,
+  userId,
+  reason
 ) {
   const supabase = createServerClient()
 
@@ -335,7 +337,7 @@ async function escalateToHuman(
 /**
  * Envoyer une réponse de secours
  */
-async function sendFallbackResponse(phoneNumber: string) {
+async function sendFallbackResponse(phoneNumber) {
   await sendTypingMessage(
     phoneNumber,
     'Je suis désolée, je rencontre un petit problème technique. Un conseiller va vous contacter rapidement. Merci de votre patience ! 🙏'
@@ -345,10 +347,10 @@ async function sendFallbackResponse(phoneNumber: string) {
 /**
  * Mettre à jour l'état de la conversation
  */
-async function updateConversationState(conversationId: string, intent: string) {
+async function updateConversationState(conversationId, intent) {
   const supabase = createServerClient()
 
-  const stateMap: Record<string, string> = {
+  const stateMap = {
     greeting: 'greeting',
     product_search: 'product_search',
     question: 'product_inquiry',
