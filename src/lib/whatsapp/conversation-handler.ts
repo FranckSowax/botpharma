@@ -70,10 +70,39 @@ export async function handleIncomingMessage(message: IncomingMessage) {
 
     if (!aiResponse.success || !aiResponse.response) {
       console.error('❌ Erreur génération réponse IA:', aiResponse.error)
-      // Réponse de secours
+      
+      // Utiliser une réponse de secours intelligente basée sur l'intention
+      let fallbackMessage = ''
+      switch (intent) {
+        case 'greeting':
+          fallbackMessage = 'Bonjour ! 😊 Je suis Léa, votre assistante virtuelle. Comment puis-je vous aider aujourd\'hui ?'
+          break
+        case 'product_search':
+          fallbackMessage = 'Je serais ravie de vous aider à trouver le produit idéal ! Pouvez-vous me donner plus de détails sur ce que vous recherchez ? 💚'
+          break
+        case 'question':
+          fallbackMessage = 'C\'est une excellente question ! Je vais vérifier les informations pour vous. Un instant s\'il vous plaît... ✨'
+          break
+        case 'order':
+          fallbackMessage = 'Parfait ! Je vais vous aider avec votre commande. Pouvez-vous me préciser les produits qui vous intéressent ? 🛍️'
+          break
+        default:
+          fallbackMessage = 'Merci pour votre message ! Je suis là pour vous aider. Que puis-je faire pour vous ? 😊'
+      }
+      
+      // Sauvegarder et envoyer la réponse de secours
+      await saveMessage(conversation.id, 'assistant', fallbackMessage)
       const phoneNumber = message.from.replace('@s.whatsapp.net', '')
-      await sendFallbackResponse(phoneNumber)
-      return { success: false, error: 'AI response failed', details: aiResponse.error }
+      await sendTypingMessage(phoneNumber, fallbackMessage)
+      
+      console.log('⚠️ Réponse de secours envoyée')
+      return { 
+        success: true, 
+        response: fallbackMessage,
+        intent,
+        fallback: true,
+        error: aiResponse.error 
+      }
     }
 
     // 8. Sauvegarder la réponse de l'assistant

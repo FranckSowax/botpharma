@@ -114,6 +114,8 @@ export async function generateAIResponse(
     }
 
     // Appel à OpenAI
+    console.log('🤖 Appel OpenAI avec', messages.length, 'messages')
+    
     const completion = await openai.chat.completions.create({
       model: 'gpt-4',
       messages: messages as any,
@@ -126,13 +128,27 @@ export async function generateAIResponse(
     const response = completion.choices[0]?.message?.content
 
     if (!response) {
+      console.error('❌ Pas de réponse d\'OpenAI')
       return { success: false, error: 'No response from OpenAI' }
     }
 
+    console.log('✅ Réponse OpenAI reçue:', response.substring(0, 50) + '...')
     return { success: true, response }
-  } catch (error) {
-    console.error('Erreur OpenAI:', error)
-    return { success: false, error }
+  } catch (error: any) {
+    console.error('❌ Erreur OpenAI:', {
+      message: error.message,
+      type: error.type,
+      code: error.code,
+      status: error.status,
+    })
+    return { 
+      success: false, 
+      error: {
+        message: error.message,
+        type: error.type,
+        code: error.code,
+      }
+    }
   }
 }
 
