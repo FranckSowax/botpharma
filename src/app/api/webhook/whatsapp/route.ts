@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server'
-// @ts-ignore
-import { handleIncomingMessage } from '@/lib/whatsapp/conversation-handler.js'
+import { handleIncomingMessage } from '@/lib/whatsapp/conversation-handler'
 
 /**
  * Webhook pour recevoir les messages WhatsApp de Whapi
